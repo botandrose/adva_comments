@@ -13,7 +13,6 @@ class CommentsController < BaseController
 
   protect_from_forgery :except => [:preview, :create]
 
-  authenticates_anonymous_user
   layout 'default'
 
   before_action :set_section

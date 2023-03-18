@@ -6,7 +6,7 @@ ActiveSupport::Reloader.to_prepare do
   end
 end
 
-class ArticleFormBuilder < ExtensibleFormBuilder
+class ArticleFormBuilder < Adva::ExtensibleFormBuilder
   after(:article, :filter) do |f|
     render :partial => 'admin/articles/comments_settings', :locals => { :f => f }
   end

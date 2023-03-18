@@ -26,7 +26,6 @@ class Comment < ActiveRecord::Base
   end
 
   filtered_column :body
-  filters_attributes :sanitize => :body_html
 
   has_filter :text  => { :attributes => [:body] },
              :state => { :states => [:approved, :unapproved] }
