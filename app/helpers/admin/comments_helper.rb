@@ -11,17 +11,6 @@ module Admin
       end
     end
 
-    def comments_filter_options
-      options = I18n.t(:'adva.comments.filter.options')
-
-      [[options[:all], 					'all'],
-  		 [options[:state], 		    'state'],
-  	   [options[:body],         'body'],
-  	   [options[:author_name], 	'author_name'],
-  	   [options[:author_email], 'author_email'],
-  	   [options[:author_url],   'author_homepage']]
-    end
-
     def comments_state_options
       options = I18n.t(:'adva.comments.state.options')
 

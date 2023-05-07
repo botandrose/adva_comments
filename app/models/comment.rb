@@ -27,9 +27,6 @@ class Comment < ActiveRecord::Base
 
   filtered_column :body
 
-  has_filter :text  => { :attributes => [:body] },
-             :state => { :states => [:approved, :unapproved] }
-
   belongs_to :site
   belongs_to :section
   belongs_to :commentable, :polymorphic => true

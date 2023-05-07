@@ -56,22 +56,6 @@ class Admin::CommentsController < Admin::BaseController
       @comment = Comment.find(params[:id])
     end
     
-    def filter_options options
-      case params[:filter]
-      when 'state'
-        params[:state] == 'approved' ? options[:conditions] = "approved = '1'" : options[:conditions] = "approved = '0'"
-      when 'body'
-        options[:conditions] = Comment.send(:sanitize_sql, ["LOWER(body) LIKE :query", {:query => "%#{params[:query].downcase}%"}])
-      when 'author_name'
-        options[:conditions] = Comment.send(:sanitize_sql, ["LOWER(author_name) LIKE :query", {:query => "%#{params[:query].downcase}%"}])
-      when 'author_email'
-        options[:conditions] = Comment.send(:sanitize_sql, ["LOWER(author_email) LIKE :query", {:query => "%#{params[:query].downcase}%"}])
-      when 'author_homepage'
-        options[:conditions] = Comment.send(:sanitize_sql, ["LOWER(author_homepage) LIKE :query", {:query => "%#{params[:query].downcase}%"}])
-      end
-      options
-    end
-
     def postback_spaminess
       if @comment.approved_changed? and @site.respond_to?(:spam_engine)
         spaminess = @comment.approved? ? :ham : :spam
