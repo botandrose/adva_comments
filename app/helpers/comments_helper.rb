@@ -2,7 +2,7 @@ module CommentsHelper
   def comments_feed_title(*owners)
     options = owners.extract_options!
     separator = options[:separator] || ' &raquo; '
-    I18n.t(:'adva.titles.comments') + ': ' + owners.compact.uniq.map(&:title).join(separator)
+    'Comments: ' + owners.compact.uniq.map(&:title).join(separator)
   end
 
   methods = %w(admin_comments_path admin_comment_path
@@ -21,7 +21,7 @@ module CommentsHelper
   def link_to_content_comments_count(content, options = {:total => true})
     total = content.comments_count
     approved = content.approved_comments_count
-    return options[:alt] || t(:'adva.common.none') if approved == 0
+    return options[:alt] || "None" if approved == 0
     text = if total == approved or !options[:total]
       "#{approved.to_s.rjust(2, '0')}"
     else
@@ -37,7 +37,7 @@ module CommentsHelper
     return unless content.approved_comments_count > 0 || content.accept_comments?
 
     text = t(text) if text.is_a?(Symbol)
-    text ||= t(:'adva.comments.titles.comment_with_count', :count => content.approved_comments_count)
+    text ||= pluralize(content.approved_comments_count, "comment")
     options.merge! :anchor => (comment ? dom_id(comment) : 'comments')
     link_to text, [content.section, content], options
   end
@@ -49,7 +49,7 @@ module CommentsHelper
   end
 
   def link_to_remote_comment_preview
-    link_to(I18n.t(:'adva.titles.preview'), preview_comments_path, :id => 'preview_comment', :style => "display:none;") +
+    link_to("Preview", preview_comments_path, :id => 'preview_comment', :style => "display:none;") +
       image_tag('adva_cms/indicator.gif', :alt => '', :id => 'comment_preview_spinner', :style => 'display:none;')
   end
 
