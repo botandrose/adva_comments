@@ -1,3 +1,5 @@
+require 'validates_email_format_of'
+
 class Comment < ActiveRecord::Base
   class CommentNotAllowed < StandardError; end
 
@@ -25,7 +27,6 @@ class Comment < ActiveRecord::Base
     commentable.touch
   end
 
-  filtered_column :body
 
   belongs_to :site
   belongs_to :section
@@ -50,6 +51,12 @@ class Comment < ActiveRecord::Base
 
   def filter
     commentable.comment_filter
+  end
+
+  def author_link
+    name = author_name.presence || (respond_to?(:author) && author.respond_to?(:name) ? author.name : nil)
+    return name unless author_homepage.present?
+    %(<a href="#{author_homepage}">#{name}</a>).html_safe
   end
 
   def unapproved?

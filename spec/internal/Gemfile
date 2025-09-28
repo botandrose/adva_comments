@@ -1,0 +1,13 @@
+source 'https://rubygems.org'
+
+# Load the gem being tested
+gemspec path: '../..'
+
+# Add the adva dependency explicitly
+gem 'adva', path: '../../../adva'
+
+# Test dependencies
+gem 'rspec'
+gem 'rspec-rails'
+gem 'sqlite3', '~> 2.1'
+gem 'simplecov'

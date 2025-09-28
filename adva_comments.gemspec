@@ -18,4 +18,12 @@ Gem::Specification.new do |gem|
   gem.add_dependency "adva"
   gem.add_dependency "validates_email_format_of"
   gem.add_dependency "invisible_captcha"
+
+  gem.add_development_dependency "rspec", ">= 3.12", "< 4.0"
+  gem.add_development_dependency "rspec-rails", ">= 6.1", "< 8.0"
+  gem.add_development_dependency "rails", ">= 7.2", "< 9.0"
+  gem.add_development_dependency "sqlite3", "~> 2.1"
+  gem.add_development_dependency "simplecov", "~> 0.22"
+  gem.add_development_dependency "simplecov-html", "~> 0.13"
+  gem.add_development_dependency "shoulda-matchers", "~> 6.0"
 end
