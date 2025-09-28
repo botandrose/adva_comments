@@ -9,7 +9,16 @@ module ActiveRecord
     module ActMacro
       def has_counter(*names)
         options = names.extract_options!
-        callbacks = options[:callbacks] || { :after_create  => :increment!, :after_destroy => :decrement! }
+        callbacks = options[:callbacks] || { after_create: :increment!, after_destroy: :decrement! }
+        [:after_create, :after_destroy, :after_save].each do |k|
+          next unless options.key?(k)
+          value = options[k]
+          if value == false || value.nil?
+            callbacks.delete(k)
+          else
+            callbacks[k] = value
+          end
+        end
 
         class_attribute :"update_counters"
         self.update_counters ||= {}
@@ -47,11 +56,13 @@ module ActiveRecord
           # Wire up the counted class so that it updates our counter, basically
           # an anonymous callback/observer pattern
           target = class_name.to_s.classify.constantize
+          owner_klass = self
           callbacks.keys.each do |callback|
-            target.send callback do |record|
+            target.send callback do
+              record = self
               owner = record.send(owner_name) if record.respond_to?(owner_name)
               # do not update the counter when counter's owner (e.g. article) is not frozen (deleted)
-              if self === owner && !owner.frozen? && record.class == target
+              if owner_klass === owner && !owner.frozen? && record.class == target
                 method = callbacks[callback]
                 method = method.call(record) if Proc === method
                 counter = owner.send(counter_name) if method
@@ -64,4 +75,3 @@ module ActiveRecord
     end
   end
 end
-

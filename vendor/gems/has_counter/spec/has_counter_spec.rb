@@ -24,6 +24,13 @@ describe "has_counter:", "using default after_create and after_destroy callbacks
     @comment.destroy
     @content.comments_count.should == 0
   end
+
+  it "reloads the counter when force_reload is true" do
+    @content.comments.create! :text => 'first comment'
+    # touch the association, then force reload path
+    @content.comments_counter
+    @content.comments_counter(true).count.should == 1
+  end
 end
 
 describe "has_counter:", "using a method name as after_create and after_destroy callbacks" do

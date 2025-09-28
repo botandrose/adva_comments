@@ -1,2 +1,16 @@
 #!/usr/bin/env rake
-require "bundler/gem_tasks"
+# Load bundler gem tasks only when explicitly requested to avoid sandbox writes
+if ARGV.any? { |a| a =~ /^(gem:|build|release|install)/ }
+  begin
+    require "bundler/gem_tasks"
+  rescue LoadError
+  end
+end
+
+begin
+  require 'rspec/core/rake_task'
+  RSpec::Core::RakeTask.new(:spec)
+  task default: :spec
+rescue LoadError
+  # RSpec not available; allow gem tasks only
+end
