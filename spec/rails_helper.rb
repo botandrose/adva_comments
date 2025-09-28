@@ -22,6 +22,14 @@ RSpec.configure do |config|
   config.use_transactional_fixtures = true
   config.infer_spec_type_from_file_location!
   config.filter_rails_from_backtrace!
+
+  # Make request specs friendlier: disable CSRF and show detailed exceptions
+  config.before do
+    if defined?(ActionController::Base)
+      ActionController::Base.allow_forgery_protection = false
+      Rails.application.env_config["action_dispatch.show_detailed_exceptions"] = true
+    end
+  end
 end
 
 # Prepare database via schema (self-contained for this engine)

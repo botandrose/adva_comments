@@ -103,7 +103,11 @@ if defined?(Comment)
                            end]
         end.flatten].tap do |attrs|
           # Override with comment-specific attributes
-          clone_attrs = record.send(:clone_attributes)
+          clone_attrs = if record.respond_to?(:clone_attributes, true)
+                          record.send(:clone_attributes)
+                        else
+                          record.attributes
+                        end
           comment_attrs = clone_attrs.slice 'commentable_id', 'body', 'author_name', 'author_email', 'author_url'
           type = record.commentable.has_attribute?('type') ? record.commentable['type'] : record.commentable_type
           comment_attrs.update('commentable_type' => type, 'commentable_title' => record.commentable.title)

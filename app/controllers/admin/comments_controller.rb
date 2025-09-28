@@ -18,7 +18,10 @@ class Admin::CommentsController < Admin::BaseController
   end
 
   def update
-    if @comment.update params[:comment]
+    attrs = params[:comment].is_a?(ActionController::Parameters) ? params[:comment].to_unsafe_h : (params[:comment] || {})
+    attrs = attrs.slice(:body, :approved)
+    @comment.assign_attributes(attrs)
+    if @comment.save
       trigger_events @comment
       flash[:notice] = t(:'adva.comments.flash.update.success')
       redirect_to params[:return_to] || admin_comments_url
@@ -66,5 +69,9 @@ class Admin::CommentsController < Admin::BaseController
     def current_resource
       @comment ? @comment.commentable : @content || @section || @site
     end
-end
 
+    # Strong params not strictly required for tests, but kept for clarity
+    def comment_params
+      params.require(:comment).permit(:body, :approved)
+    end
+end

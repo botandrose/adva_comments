@@ -13,9 +13,16 @@ module Admin
 
     def comments_state_options
       options = I18n.t(:'adva.comments.state.options')
+      if options.is_a?(Hash)
+        approved_label = options[:approved]
+        unapproved_label = options[:unapproved]
+      else
+        approved_label = 'Approved'
+        unapproved_label = 'Unapproved'
+      end
 
-      [[options[:approved],   'approved'],
-  		 [options[:unapproved], 'unapproved']]
+      [[approved_label, 'approved'],
+		 [unapproved_label, 'unapproved']]
     end
   end
 end
