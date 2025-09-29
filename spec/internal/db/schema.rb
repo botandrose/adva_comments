@@ -115,7 +115,14 @@ ActiveRecord::Schema.define do
     t.references :site
     t.references :section
     t.references :object, polymorphic: true
+    # Polymorphic author and cached fields (to match Adva expectations)
+    t.references :author, polymorphic: true
+    t.string  :author_name, limit: 40
+    t.string  :author_email, limit: 40
+    t.string  :author_homepage
     t.string :type
+    t.text   :object_attributes
+    t.text   :actions
     t.timestamps
   end
 

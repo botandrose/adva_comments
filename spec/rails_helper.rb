@@ -2,6 +2,10 @@ ENV["RAILS_ENV"] ||= "test"
 
 require "spec_helper"
 
+# Ensure DB folder exists before Rails initializes and connects
+require 'fileutils'
+FileUtils.mkdir_p(File.join(__dir__, 'internal', 'tmp'))
+
 # Load the internal Rails application
 require File.expand_path('internal/config/environment', __dir__)
 

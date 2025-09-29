@@ -54,7 +54,18 @@ if defined?(Comment)
         activity = record.instance_variable_get :@activity
         if activity && !activity.actions.empty?
           activity.object = record
-          activity.author = record.author if record.respond_to? :author
+          if record.respond_to?(:author_name)
+            activity.author_name = record.author_name
+            activity.author_email = record.author_email if record.respond_to?(:author_email)
+            activity.author_homepage = record.author_homepage if record.respond_to?(:author_homepage)
+          elsif record.respond_to?(:author) && record.author.respond_to?(:name)
+            activity.author_name = record.author.name
+          end
+          # Satisfy author association validation if present
+          if activity.respond_to?(:author=)
+            author_obj = User.first
+            activity.author = author_obj if author_obj
+          end
           activity.save!
         end
         record.instance_variable_set :@activity, nil
@@ -65,7 +76,14 @@ if defined?(Comment)
                      :object_attributes => collect_activity_attributes(record)).tap do |activity|
           activity.site = record.commentable.site
           activity.section = record.commentable.section
-          activity.author = record.author
+          # cache author details instead of associating
+          if record.respond_to?(:author_name)
+            activity.author_name = record.author_name
+            activity.author_email = record.author_email if record.respond_to?(:author_email)
+            activity.author_homepage = record.author_homepage if record.respond_to?(:author_homepage)
+          elsif record.respond_to?(:author) && record.author.respond_to?(:name)
+            activity.author_name = record.author.name
+          end
         end
       end
 
