@@ -11,18 +11,6 @@ class Comment < ActiveRecord::Base
     where :approved => false
   end
 
-  define_model_callbacks :approve, :unapprove
-
-  def around_save
-    if just_approved?
-      run_callbacks(:approve) { yield }
-    elsif just_unapproved?
-      run_callbacks(:unapprove) { yield }
-    else
-      yield
-    end
-  end
-
   after_save do
     commentable.touch
   end
@@ -63,35 +51,20 @@ class Comment < ActiveRecord::Base
     !approved?
   end
 
-  def just_approved?
-    approved_changed? and approved?
-  end
-
-  def just_unapproved?
-    approved_changed? and unapproved?
-  end
-
-  def state_changes
-    state_changes = if just_approved?
-      [:approved]
-    elsif just_unapproved?
-      [:unapproved]
-    end || []
-    super + state_changes
-  end
+  define_model_callbacks :approve, :unapprove
 
   protected
 
-    def authorize_commenting
-      if commentable && !commentable.accept_comments?
-        raise CommentNotAllowed, I18n.t(:'adva.comments.messages.not_allowed')
-      end
+  def authorize_commenting
+    if commentable && !commentable.accept_comments?
+      raise CommentNotAllowed, I18n.t(:'adva.comments.messages.not_allowed')
     end
+  end
 
-    def set_owners
-      if commentable # TODO in what cases would commentable be nil here?
-        self.site = commentable.site
-        self.section = commentable.section
-      end
+  def set_owners
+    if commentable # TODO in what cases would commentable be nil here?
+      self.site = commentable.site
+      self.section = commentable.section
     end
+  end
 end

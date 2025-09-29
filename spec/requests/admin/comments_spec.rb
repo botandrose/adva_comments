@@ -18,6 +18,11 @@ RSpec.describe 'Admin::Comments', type: :request do
   before do
     allow_any_instance_of(Admin::BaseController).to receive(:current_user).and_return(admin_user)
     host! site.host
+    # Ensure AR observers from other specs don't interfere with request behavior
+    if defined?(ActiveRecord::Base) && ActiveRecord::Base.respond_to?(:observers=)
+      ActiveRecord::Base.observers = []
+      ActiveRecord::Base.instantiate_observers if ActiveRecord::Base.respond_to?(:instantiate_observers)
+    end
   end
 
   # View templates depend on routes outside this engine; focus on update/destroy
@@ -41,9 +46,6 @@ RSpec.describe 'Admin::Comments', type: :request do
       allow_any_instance_of(ActionView::Base).to receive(:link_to_edit).and_return('ok')
       allow_any_instance_of(ActionView::Base).to receive(:link_to_delete).and_return('ok')
       allow_any_instance_of(ActionDispatch::Request).to receive(:request_uri).and_return('/admin/comments')
-      if defined?(Activities::CommentObserver)
-        allow_any_instance_of(Activities::CommentObserver).to receive(:after_destroy)
-      end
 
       delete "/admin/comments/#{comment.id}", headers: headers
       expect(response).to have_http_status(:found)

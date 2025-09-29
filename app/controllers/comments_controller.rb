@@ -17,7 +17,8 @@ class CommentsController < BaseController
 
   before_action :set_section
   before_action :set_comment, :only => [:show, :update, :destroy]
-  before_action :set_commentable, :only => [:show, :preview, :create]
+  # Ensure @commentable is available for update to support param merging and filters
+  before_action :set_commentable, :only => [:show, :preview, :create, :update]
 
   invisible_captcha only: [:create, :update], honeypot: :subtitle, if: -> { current_user.anonymous? }
 
@@ -61,6 +62,8 @@ class CommentsController < BaseController
       render json: true
     else
       set_commentable
+      Rails.logger.debug("CommentsController#update errors: #{@comment.errors.full_messages.inspect}")
+      puts("DEBUG CommentsController#update errors: #{@comment.errors.full_messages.inspect}") if ENV['SPEC_DEBUG']
       flash[:error] = @comment.errors.full_messages.to_sentence
       render json: false
     end

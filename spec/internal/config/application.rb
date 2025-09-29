@@ -6,10 +6,6 @@ require "action_mailer/railtie"
 require "active_job/railtie"
 require "adva"
 require "adva_comments"
-begin
-  require 'rails/observers/active_record/observer'
-rescue LoadError
-end
 
 module Internal
   class Application < Rails::Application
@@ -26,10 +22,5 @@ module Internal
 
     # Disable asset pipeline in tests
     config.assets.enabled = false
-
-    # Enable observers for tests when available
-    if defined?(ActiveRecord::Observer)
-      config.active_record.observers = 'Activities::CommentObserver'
-    end
   end
 end

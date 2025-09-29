@@ -26,5 +26,4 @@ Gem::Specification.new do |gem|
   gem.add_development_dependency "simplecov", "~> 0.22"
   gem.add_development_dependency "simplecov-html", "~> 0.13"
   gem.add_development_dependency "shoulda-matchers", "~> 6.0"
-  gem.add_dependency "rails-observers", "~> 0.1"
 end

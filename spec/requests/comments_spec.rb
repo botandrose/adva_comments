@@ -50,14 +50,32 @@ RSpec.describe 'Comments', type: :request do
       expect(response.headers['Location']).to start_with("http://#{site.host}/ref")
     end
 
+    it 'as anonymous sets review notice and redirects' do
+      allow(CommentMailer).to receive_message_chain(:comment_notification, :deliver_later)
+      anon = User.anonymous
+      allow(anon).to receive(:anonymous?).and_return(true)
+      allow_any_instance_of(CommentsController).to receive(:current_user).and_return(anon)
+      # bypass invisible_captcha
+      allow_any_instance_of(CommentsController).to receive(:verify_invisible_captcha).and_return(true)
+
+      post '/comments', params: {
+        comment: {
+          commentable_type: 'Article',
+          commentable_id: article.id,
+          author_name: 'Anon',
+          author_email: 'anon@example.com',
+          body: 'Body'
+        }
+      }, headers: headers
+      expect(response).to have_http_status(:found)
+      expect(response.headers['Location']).to start_with("http://#{site.host}/ref")
+    end
+
     it 'auto-approves when user is not anonymous' do
       allow(CommentMailer).to receive_message_chain(:comment_notification, :deliver_later)
       user = User.first
       allow(user).to receive(:anonymous?).and_return(false)
       allow_any_instance_of(CommentsController).to receive(:current_user).and_return(user)
-      if defined?(Activities::CommentObserver)
-        allow_any_instance_of(Activities::CommentObserver).to receive(:after_save)
-      end
 
       post '/comments', params: {
         comment: {
@@ -74,6 +92,7 @@ RSpec.describe 'Comments', type: :request do
     end
 
     it 'fails with invalid params and redirects' do
+      allow_any_instance_of(CommentsController).to receive(:verify_invisible_captcha).and_return(true)
       post '/comments', params: {
         comment: {
           commentable_type: 'Article',
