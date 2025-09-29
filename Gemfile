@@ -4,3 +4,5 @@ source 'https://rubygems.org'
 gemspec
 
 gem "adva", path: "../adva"
+gem "rails", "~>8.0.0"
+gem "sqlite3", "~>2.0"

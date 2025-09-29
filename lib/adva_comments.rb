@@ -15,7 +15,10 @@ require "has_counter"
 module AdvaComments
   class Engine < Rails::Engine
     initializer "add assets to precompilation list" do |app|
-      app.config.assets.precompile += %w(adva_comments/admin/comments.css)
+      if app.config.respond_to?(:assets) && app.config.assets.respond_to?(:precompile)
+        current = Array(app.config.assets.precompile)
+        app.config.assets.precompile = current + %w(adva_comments/admin/comments.css)
+      end
     end
 
     initializer "adva_comments.init" do
