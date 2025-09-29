@@ -65,4 +65,52 @@ RSpec.describe Comment, type: :model do
       expect(comment.author_link).to eq(comment.author_name)
     end
   end
+
+  describe 'scopes and flags' do
+    it 'filters by approved and unapproved scopes' do
+      approved = Comment.create!(site: section.site, section: section, commentable: article, author_name: 'A', author_email: 'a@example.com', body: 'ok', approved: 1)
+      unapproved = Comment.create!(site: section.site, section: section, commentable: article, author_name: 'B', author_email: 'b@example.com', body: 'ok', approved: 0)
+      expect(Comment.approved).to include(approved)
+      expect(Comment.approved).not_to include(unapproved)
+      expect(Comment.unapproved).to include(unapproved)
+      expect(Comment.unapproved).not_to include(approved)
+    end
+
+    it 'reports approved? and unapproved? based on approved attribute' do
+      c = Comment.new(approved: 1)
+      expect(c).to be_approved
+      expect(c).not_to be_unapproved
+      c.approved = 0
+      expect(c).not_to be_approved
+      expect(c).to be_unapproved
+    end
+  end
+
+  describe '#commentable_type=' do
+    it 'stores the base class name for STI models' do
+      c = Comment.new
+      c.commentable_type = 'Article'
+      expect(c[:commentable_type]).to eq('Content')
+    end
+  end
+
+  describe 'email format validation' do
+    it 'rejects invalid email' do
+      c = Comment.new(site: section.site, section: section, commentable: article, author_name: 'X', author_email: 'invalid', body: 'ok')
+      expect(c).not_to be_valid
+      expect(c.errors[:author_email]).not_to be_empty
+    end
+  end
+
+  # Note: approve/unapprove custom callbacks use legacy dirty tracking; we
+  # exercise the surrounding behavior via request specs instead.
+
+  describe 'after_save behavior' do
+    it 'touches the commentable' do
+      c = Comment.create!(site: section.site, section: section, commentable: article, author_name: 'Y', author_email: 'y@example.com', body: 'ok', approved: 1)
+      expect(c.commentable).to receive(:touch)
+      c.body = 'changed'
+      c.save!
+    end
+  end
 end

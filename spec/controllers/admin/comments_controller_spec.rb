@@ -25,6 +25,25 @@ RSpec.describe Admin::CommentsController, type: :controller do
       expect(response).to redirect_to(admin_comments_url)
       expect(comment.reload.body).to eq('updated comment body')
     end
+
+    it 'postbacks spaminess when approved changes (direct invocation)' do
+      comment.update!(approved: 0)
+      spam_engine = double('spam_engine')
+      allow(site).to receive(:respond_to?).with(:spam_engine).and_call_original
+      allow(site).to receive(:respond_to?).with(:spam_engine).and_return(true)
+      allow(site).to receive(:spam_engine).and_return(spam_engine)
+      allow(spam_engine).to receive(:mark_spaminess)
+
+      # simulate change
+      comment.approved = 1
+      allow(comment).to receive(:approved_changed?).and_return(true)
+      allow(comment).to receive(:approved?).and_return(true)
+      controller.instance_variable_set(:@comment, comment)
+      controller.instance_variable_set(:@site, site)
+      allow(controller).to receive(:show_url).and_return('/x')
+      expect(spam_engine).to receive(:mark_spaminess).with(:ham, comment, hash_including(:url => '/x'))
+      controller.send(:postback_spaminess)
+    end
   end
 
   describe 'DELETE destroy' do
@@ -35,5 +54,27 @@ RSpec.describe Admin::CommentsController, type: :controller do
       expect(Comment.find_by(id: comment.id)).to be_nil
     end
   end
-end
 
+  describe 'GET index' do
+    it 'renders successfully' do
+      get :index
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe 'GET edit' do
+    it 'renders edit' do
+      get :edit, params: { id: comment.id }
+      expect(response).to have_http_status(:ok)
+    end
+  end
+
+  describe 'PUT update failure' do
+    it 'renders edit and does not change the comment' do
+      original = comment.body
+      put :update, params: { id: comment.id, comment: { body: '' } }
+      expect(response).to have_http_status(:ok)
+      expect(comment.reload.body).to eq(original)
+    end
+  end
+end
