@@ -54,7 +54,8 @@ RSpec.describe 'Comments', type: :request do
       allow(CommentMailer).to receive_message_chain(:comment_notification, :deliver_later)
       anon = User.anonymous
       allow(anon).to receive(:anonymous?).and_return(true)
-      allow_any_instance_of(CommentsController).to receive(:current_user).and_return(anon)
+      # Stub at BaseController level to ensure CommentsController sees anonymous
+      allow_any_instance_of(BaseController).to receive(:current_user).and_return(anon)
       # bypass invisible_captcha
       allow_any_instance_of(CommentsController).to receive(:verify_invisible_captcha).and_return(true)
 

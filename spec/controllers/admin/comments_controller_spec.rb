@@ -58,4 +58,33 @@ RSpec.describe Admin::CommentsController, type: :controller do
       expect(comment.reload.body).to eq(original)
     end
   end
+
+  describe '#current_resource' do
+    it 'returns the commentable when @comment is present' do
+      controller.instance_variable_set(:@comment, comment)
+      expect(controller.send(:current_resource)).to eq(comment.commentable)
+    end
+
+    it 'returns @content when @comment is nil and @content is present' do
+      controller.instance_variable_set(:@comment, nil)
+      content = double('content')
+      controller.instance_variable_set(:@content, content)
+      expect(controller.send(:current_resource)).to eq(content)
+    end
+
+    it 'falls back to @section when @comment and @content are nil' do
+      controller.instance_variable_set(:@comment, nil)
+      controller.instance_variable_set(:@content, nil)
+      controller.instance_variable_set(:@section, section)
+      expect(controller.send(:current_resource)).to eq(section)
+    end
+
+    it 'falls back to @site when others are nil' do
+      controller.instance_variable_set(:@comment, nil)
+      controller.instance_variable_set(:@content, nil)
+      controller.instance_variable_set(:@section, nil)
+      controller.instance_variable_set(:@site, site)
+      expect(controller.send(:current_resource)).to eq(site)
+    end
+  end
 end

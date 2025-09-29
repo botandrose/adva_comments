@@ -16,19 +16,11 @@ class Admin::CommentsController < Admin::BaseController
   end
 
   def update
-    # Normalize incoming attributes to symbol keys before slicing to avoid
-    # missing values when params have string keys (common in Rails).
-    raw = params[:comment].is_a?(ActionController::Parameters) ? params[:comment].to_unsafe_h : (params[:comment] || {})
-    attrs = raw.transform_keys { |k| k.respond_to?(:to_sym) ? k.to_sym : k }
-    attrs = attrs.slice(:body, :approved)
-    @comment.assign_attributes(attrs)
-    if @comment.save
+    if @comment.update comment_params
       trigger_events @comment
       flash[:notice] = t(:'adva.comments.flash.update.success')
       redirect_to params[:return_to] || admin_comments_url
     else
-      Rails.logger.debug("Admin::CommentsController#update errors: #{@comment.errors.full_messages.inspect}")
-      puts("DEBUG Admin::CommentsController#update errors: #{@comment.errors.full_messages.inspect}") if ENV['SPEC_DEBUG']
       flash.now[:error] = t(:'adva.comments.flash.update.failure')
       render :action => :edit
     end
@@ -55,7 +47,6 @@ class Admin::CommentsController < Admin::BaseController
     @comment ? @comment.commentable : @content || @section || @site
   end
 
-  # Strong params not strictly required for tests, but kept for clarity
   def comment_params
     params.require(:comment).permit(:body, :approved)
   end

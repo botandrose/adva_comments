@@ -62,8 +62,6 @@ class CommentsController < BaseController
       render json: true
     else
       set_commentable
-      Rails.logger.debug("CommentsController#update errors: #{@comment.errors.full_messages.inspect}")
-      puts("DEBUG CommentsController#update errors: #{@comment.errors.full_messages.inspect}") if ENV['SPEC_DEBUG']
       flash[:error] = @comment.errors.full_messages.to_sentence
       render json: false
     end
