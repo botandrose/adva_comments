@@ -2,7 +2,7 @@
 
 source "https://rubygems.org"
 
-gem "adva", path: "../../adva"
+gem "adva", github: "botandrose/adva_cms"
 gem "rails", "~> 7.2.0"
 gem "sqlite3", "~> 1.7"
 
