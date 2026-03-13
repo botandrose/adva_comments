@@ -20,7 +20,7 @@ class CommentsController < BaseController
   # Ensure @commentable is available for update to support param merging and filters
   before_action :set_commentable, :only => [:show, :preview, :create, :update]
 
-  invisible_captcha only: [:create, :update], honeypot: :subtitle, if: -> { current_user.anonymous? }
+  invisible_captcha only: [:create, :update], honeypot: :homepage, if: -> { current_user.anonymous? }
 
   def show
   end
@@ -82,7 +82,8 @@ class CommentsController < BaseController
       :body,
       :commentable_id,
       :commentable_type,
-    ).merge(site_id: @commentable.site_id, section_id: @commentable.section_id)
+      :homepage,
+    ).except(:homepage).merge(site_id: @commentable.site_id, section_id: @commentable.section_id)
   end
 
   def set_comment
