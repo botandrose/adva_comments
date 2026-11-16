@@ -35,12 +35,34 @@ ActiveRecord::Schema.define do
     t.string   :first_name,  limit: 40
     t.string   :last_name,   limit: 40
     t.string   :email,       limit: 100
-    t.string   :password_hash, limit: 40
+    t.string   :password_hash
     t.string   :password_salt, limit: 40
+    t.string   :persistence_token, null: false
+    t.string   :perishable_token
     t.boolean  :anonymous, default: false
     t.datetime :verified_at
     t.timestamps
   end
+  add_index :users, :persistence_token, unique: true
+  add_index :users, :perishable_token, unique: true
+
+  create_table :tags, force: true do |t|
+    t.string  :name
+    t.integer :taggings_count, default: 0
+    t.timestamps
+  end
+  add_index :tags, :name, unique: true
+
+  create_table :taggings, force: true do |t|
+    t.references :tag
+    t.references :taggable, polymorphic: true
+    t.references :tagger, polymorphic: true
+    t.string     :context, limit: 128
+    t.string     :tenant, limit: 128
+    t.datetime   :created_at
+  end
+  add_index :taggings, [:taggable_id, :taggable_type, :context]
+  add_index :taggings, [:tag_id, :taggable_id, :taggable_type, :context, :tagger_id, :tagger_type], unique: true, name: "taggings_idx"
 
   # Contents table (STI base for Article)
   create_table :contents, force: true do |t|
